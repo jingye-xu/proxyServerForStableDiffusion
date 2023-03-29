@@ -17,7 +17,8 @@ import random
 credentials = {}
 job_queue = []
 job_complete = {}
-
+queue_hard_username = "gpu"
+queue_hard_passwd = "is private"
 
 app = Flask(__name__)
 
@@ -85,6 +86,37 @@ def signup():
     username = data.get("username")
     passwd = data.get("passwd")
     if sign_check(username, passwd):
+        reply = {"status": 0}
+        return jsonify(reply)
+    else:
+        reply = {"status": 1}
+        return jsonify(reply)
+
+
+@app.route('/queue', methods=['GET', 'POST'])
+def queue():
+    data = request.json
+    username = data.get("username")
+    passwd = data.get("passwd")
+    
+    # hard queue username and passwd validation
+    if username != queue_hard_username or passwd != queue_hard_passwd:
+        reply = {"status": 1}
+        return jsonify(reply)
+
+    if request.method == "GET":
+        if not len(job_queue):
+            reply = {"status": 1}
+            return jsonify(reply)
+
+        job = job_queue.pop(0)
+        reply = {"status": 0, "job_id": job[0], "text": job[1]}
+        return jsonify(reply)
+
+    elif request.method == "POST":
+        job_id = data.get("id")
+        img = data.get("img")
+        job_complete[job_id] = img
         reply = {"status": 0}
         return jsonify(reply)
     else:
