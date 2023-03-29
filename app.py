@@ -14,15 +14,29 @@ from flask_bcrypt import Bcrypt
 import random
 
 
+credentials = {}
+job_queue = []
+job_complete = {}
+
+
 app = Flask(__name__)
 
 
 def validation(name, pw):
-    return True
+    if name in credentials:
+        if credentials[name] == pw:
+            return True
+        return False
+    else:
+        return False
 
 
-def sign(name, pw):
-    return True
+def sign_check(name, pw):
+    if name in credentials:
+        return False
+    else:
+        credentials[name] = pw
+        return True
 
 
 @app.route('/', methods=['GET'])
@@ -43,7 +57,8 @@ def job():
         if validation(username, passwd):
             job_id = random.getrandbits(64)
 
-            # TODO: put job into a queue
+            # put job into a queue
+            job_queue.append((job_id, text))
 
             # send info back to client
             reply = {"status": 0, "id": job_id}
@@ -54,10 +69,14 @@ def job():
     else:
         job_id = data.get("id")
 
-        # TODO: search results from the complete queue
-        
-        reply = {"id": job_id, "img": "img"}
-        return jsonify(reply)
+        # search results from the complete queue
+        if job_id in job_complete:
+            img = job_complete[job_id]
+            reply = {"id": job_id, "img": img}
+            return jsonify(reply)
+        else:
+            reply = {"id": job_id, "img": None}
+            return jsonify(reply)
 
 
 @app.route('/signup', methods=['POST'])
@@ -65,7 +84,20 @@ def signup():
     data = request.json
     username = data.get("username")
     passwd = data.get("passwd")
-    if sign(username, passwd):
+    if sign_check(username, passwd):
+        reply = {"status": 0}
+        return jsonify(reply)
+    else:
+        reply = {"status": 1}
+        return jsonify(reply)
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get("username")
+    passwd = data.get("passwd")
+    if validation(username, passwd):
         reply = {"status": 0}
         return jsonify(reply)
     else:
