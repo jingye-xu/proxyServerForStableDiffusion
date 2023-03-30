@@ -12,13 +12,15 @@ from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
 import random
+import collections
 
 
 credentials = {}
 job_queue = []
-job_complete = {}
+job_complete = collections.defaultdict(list)
 queue_hard_username = "gpu"
 queue_hard_passwd = "is private"
+random_number_bit_width = 16
 
 app = Flask(__name__)
 
@@ -93,7 +95,7 @@ def job():
     if request.method == "POST":
         text = data.get("text")
 
-        job_id = random.getrandbits(64)
+        job_id = random.getrandbits(random_number_bit_width)
         print(text)
 
         # put job into a queue
@@ -106,8 +108,8 @@ def job():
     else:
         job_id = data.get("id")
         # search results from the complete queue
-        if job_id in job_complete:
-            img = job_complete[job_id]
+        if len(job_complete[job_id]):
+            img = job_complete[job_id].pop(0)
             reply = {"status": 2, "id": job_id, "img": img}
             return jsonify(reply)
         else:
@@ -115,11 +117,33 @@ def job():
             return jsonify(reply)
 
 
+@app.route('/job_get', methods=['POST'])
+def job_get():
+    data = request.json
+    print(data)
+    username = data.get("username")
+    passwd = data.get("passwd")
+    
+    if not validation(username, passwd):
+        reply = {"status": 1, "id": 0, "img": 0}
+        return jsonify(reply)
+    
+    job_id = data.get("id")
+    # search results from the complete queue
+    if len(job_complete[job_id]):
+        img = job_complete[job_id].pop(0)
+        reply = {"status": 2, "id": job_id, "img": img}
+        return jsonify(reply)
+    else:
+        reply = {"status": 3, "id": job_id, "img": 0}
+        return jsonify(reply)
+
+
 @app.route('/queue', methods=['GET', 'POST'])
 def queue():
     data = request.json
-    print(data)
-    print(type(data))
+    # print(data)
+    # print(type(data))
     username = data.get("username")
     passwd = data.get("passwd")
     
@@ -134,13 +158,18 @@ def queue():
             return jsonify(reply)
 
         job = job_queue.pop(0)
+        print(job)
         reply = {"status": 0, "id": job[0], "text": job[1]}
         return jsonify(reply)
 
     elif request.method == "POST":
         job_id = data.get("id")
         img = data.get("img")
-        job_complete[job_id] = img
+        print(job_id)
+        # print(img)
+        job_complete[job_id].append(img)
+        print("length changed to: ")
+        print(len(job_complete[job_id]))
         reply = {"status": 2, "id": job_id, "text": ""}
         return jsonify(reply)
     else:
@@ -150,4 +179,4 @@ def queue():
 
 if __name__ == "__main__":
     
-    app.run(debug=True, host="0.0.0.0", port=int(local_config.webserver_port))
+    app.run(debug=False, host="0.0.0.0", port=int(local_config.webserver_port))

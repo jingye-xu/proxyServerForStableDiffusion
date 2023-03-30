@@ -1,4 +1,13 @@
 import requests
+import base64
+
+
+def base64toimg(input: str, filename: str="imageToSave.png"):
+    input = input.encode('utf-8')
+    print(input)
+    with open(filename, "wb") as f:
+        f.write(base64.decodebytes(input))
+
 url = "http://172.16.0.133:5000"
 job_post_data = {
     "username": "Gabriel",
@@ -7,7 +16,9 @@ job_post_data = {
 }
 
 job_get_data = {
-    "id": 123456
+    "username": "Gabriel",
+    "passwd": "stupidsimple",
+    "id": 29604
 }
 
 login_test = {
@@ -15,15 +26,7 @@ login_test = {
     "passwd": "test1"
 }
 
-# data = requests.post("http://172.16.0.133:5000/job", json=job_post_data)
 
+data = requests.post(url+"/job_get", json=job_get_data)
 # print(data.json())
-
-
-# data = requests.get("http://172.16.0.133:5000/job", json=job_get_data)
-
-# print(data.json())
-
-data = requests.post(url+"/job", json=job_post_data)
-print(data.json())
-print(data.json()["status"])
+base64toimg(data.json()["img"])
