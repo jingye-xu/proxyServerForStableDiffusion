@@ -43,46 +43,15 @@ def sign_check(name, pw):
 @app.route('/', methods=['GET'])
 # used to check if the server is accessible
 def index():
-    data = {"test": 1}
+    data = {"test": 0}
     return jsonify(data)
-
-
-@app.route('/job', methods=['GET', 'POST'])
-def job():
-    data = request.json
-    # post method
-    if request.method == "POST":
-        username = data.get("username")
-        passwd = data.get("passwd")
-        text = data.get("text")
-        if validation(username, passwd):
-            job_id = random.getrandbits(64)
-
-            # put job into a queue
-            job_queue.append((job_id, text))
-
-            # send info back to client
-            reply = {"status": 0, "id": job_id}
-            return jsonify(reply)
-        else:
-            reply = {"status": 1, "id": 0}
-            return jsonify(reply)
-    else:
-        job_id = data.get("id")
-
-        # search results from the complete queue
-        if job_id in job_complete:
-            img = job_complete[job_id]
-            reply = {"id": job_id, "img": img}
-            return jsonify(reply)
-        else:
-            reply = {"id": job_id, "img": None}
-            return jsonify(reply)
 
 
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.json
+    print(data)
+    print(type(data))
     username = data.get("username")
     passwd = data.get("passwd")
     if sign_check(username, passwd):
@@ -93,40 +62,11 @@ def signup():
         return jsonify(reply)
 
 
-@app.route('/queue', methods=['GET', 'POST'])
-def queue():
-    data = request.json
-    username = data.get("username")
-    passwd = data.get("passwd")
-    
-    # hard queue username and passwd validation
-    if username != queue_hard_username or passwd != queue_hard_passwd:
-        reply = {"status": 1}
-        return jsonify(reply)
-
-    if request.method == "GET":
-        if not len(job_queue):
-            reply = {"status": 1}
-            return jsonify(reply)
-
-        job = job_queue.pop(0)
-        reply = {"status": 0, "job_id": job[0], "text": job[1]}
-        return jsonify(reply)
-
-    elif request.method == "POST":
-        job_id = data.get("id")
-        img = data.get("img")
-        job_complete[job_id] = img
-        reply = {"status": 0}
-        return jsonify(reply)
-    else:
-        reply = {"status": 1}
-        return jsonify(reply)
-
-
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
+    print(data)
+    print(type(data))
     username = data.get("username")
     passwd = data.get("passwd")
     if validation(username, passwd):
@@ -134,6 +74,77 @@ def login():
         return jsonify(reply)
     else:
         reply = {"status": 1}
+        return jsonify(reply)
+
+
+@app.route('/job', methods=['GET', 'POST'])
+def job():
+    data = request.json
+    print(data)
+    print(type(data))
+    username = data.get("username")
+    passwd = data.get("passwd")
+    
+    if not validation(username, passwd):
+        reply = {"status": 1, "id": 0, "img": 0}
+        return jsonify(reply)
+    
+    # post method
+    if request.method == "POST":
+        text = data.get("text")
+
+        job_id = random.getrandbits(64)
+        print(text)
+
+        # put job into a queue
+        job_queue.append((job_id, text))
+        print(job_queue)
+
+        # send info back to client
+        reply = {"status": 0, "id": job_id, "img": 0}
+        return jsonify(reply)
+    else:
+        job_id = data.get("id")
+        # search results from the complete queue
+        if job_id in job_complete:
+            img = job_complete[job_id]
+            reply = {"status": 2, "id": job_id, "img": img}
+            return jsonify(reply)
+        else:
+            reply = {"status": 3, "id": job_id, "img": 0}
+            return jsonify(reply)
+
+
+@app.route('/queue', methods=['GET', 'POST'])
+def queue():
+    data = request.json
+    print(data)
+    print(type(data))
+    username = data.get("username")
+    passwd = data.get("passwd")
+    
+    # hard queue username and passwd validation
+    if username != queue_hard_username or passwd != queue_hard_passwd:
+        reply = {"status": 1, "id": 0, "text": ""}
+        return jsonify(reply)
+
+    if request.method == "GET":
+        if not len(job_queue):
+            reply = {"status": 1, "id": 0, "text": ""}
+            return jsonify(reply)
+
+        job = job_queue.pop(0)
+        reply = {"status": 0, "id": job[0], "text": job[1]}
+        return jsonify(reply)
+
+    elif request.method == "POST":
+        job_id = data.get("id")
+        img = data.get("img")
+        job_complete[job_id] = img
+        reply = {"status": 2, "id": job_id, "text": ""}
+        return jsonify(reply)
+    else:
+        reply = {"status": 3, "id": 0, "text": ""}
         return jsonify(reply)
 
 
