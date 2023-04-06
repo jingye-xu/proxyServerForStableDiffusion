@@ -11,5 +11,5 @@ sudo docker build --tag proxyserver .
 
 ### 3. Run proxyserver
 ```bash
-sudo docker run -d --restart always -p 5000:5000 proxyserver 
+sudo docker run -d --restart always --name proxy -p 5000:5000 proxyserver 
 ```
