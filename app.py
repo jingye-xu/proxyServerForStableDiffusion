@@ -88,7 +88,7 @@ def job():
     passwd = data.get("passwd")
     
     if not validation(username, passwd):
-        reply = {"status": 1, "id": 0, "img": 0}
+        reply = {"status": 1, "id": 0, "img": ""}
         return jsonify(reply)
     
     # post method
@@ -103,7 +103,7 @@ def job():
         print(job_queue)
 
         # send info back to client
-        reply = {"status": 0, "id": job_id, "img": 0}
+        reply = {"status": 0, "id": job_id, "img": ""}
         return jsonify(reply)
     else:
         job_id = data.get("id")
@@ -113,7 +113,7 @@ def job():
             reply = {"status": 2, "id": job_id, "img": img}
             return jsonify(reply)
         else:
-            reply = {"status": 3, "id": job_id, "img": 0}
+            reply = {"status": 3, "id": job_id, "img": ""}
             return jsonify(reply)
 
 
@@ -125,7 +125,7 @@ def job_get():
     passwd = data.get("passwd")
     
     if not validation(username, passwd):
-        reply = {"status": 1, "id": 0, "img": 0}
+        reply = {"status": 1, "id": 0, "img": ""}
         return jsonify(reply)
     
     job_id = data.get("id")
@@ -135,7 +135,7 @@ def job_get():
         reply = {"status": 2, "id": job_id, "img": img}
         return jsonify(reply)
     else:
-        reply = {"status": 3, "id": job_id, "img": 0}
+        reply = {"status": 3, "id": job_id, "img": ""}
         return jsonify(reply)
 
 
