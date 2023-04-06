@@ -6,10 +6,10 @@
 
 ### 2. Build docker image
 ```bash
-sudo docker build --tag proxyServer .
+sudo docker build --tag proxyserver .
 ```
 
-### 3. Run proxyServer
+### 3. Run proxyserver
 ```bash
-sudo docker run -d --restart always -p 5000:5000 proxyServer 
+sudo docker run -d --restart always -p 5000:5000 proxyserver 
 ```
