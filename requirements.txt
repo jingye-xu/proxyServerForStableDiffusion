@@ -1,9 +1,2 @@
 Flask==2.2.2
-Flask_Bcrypt==1.0.1
-Flask_Login==0.6.2
-flask_sqlalchemy==3.0.3
-Flask_WTF==1.0.1
-pandas==1.5.2
-pymongo==4.3.3
 requests==2.22.0
-WTForms==3.0.1

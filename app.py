@@ -1,16 +1,7 @@
 from flask import Flask, render_template, request, url_for, redirect, jsonify
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-import pandas as pd
 from os.path import exists
 import sys
 import local_config
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import InputRequired, Length, ValidationError
-from flask_bcrypt import Bcrypt
 import random
 import collections
 
